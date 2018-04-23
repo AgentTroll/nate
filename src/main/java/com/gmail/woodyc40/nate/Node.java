@@ -64,7 +64,7 @@ public class Node {
     }
 
     private int mix(int data) {
-        data &= System.currentTimeMillis() & Integer.MAX_VALUE - 1;
+        data = (int) (System.currentTimeMillis() >>> data % 32);
         return data;
     }
 }

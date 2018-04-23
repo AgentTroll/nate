@@ -43,6 +43,8 @@ public class Main {
                 System.out.println("Result = " + result + " (expected? " + (expect == result) + ')');
 
                 nate.learn(expect, data);
+
+                nate.saveState();
                 stateManager.write(statePath);
             }
         }

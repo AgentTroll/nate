@@ -7,7 +7,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import javax.inject.Inject;
-import java.util.Iterator;
 
 public class Nate {
     private final Config config;
@@ -23,26 +22,16 @@ public class Nate {
 
     public void init() {
         this.collection = new NodeCollection(this.config.getBrainSize());
-        JsonArray array = this.stateManager.getCollection();
+        JsonArray array = this.stateManager.getArray();
         for (JsonElement jsonElement : array) {
+            if (this.collection.size() == this.config.getBrainSize()) {
+                break;
+            }
             this.collection.add(new Node(this, jsonElement));
         }
 
-        int diff = this.collection.size() - this.config.getBrainSize();
-        int counter = 0;
-        if (diff > 0) {
-            for (Iterator<Node> it = this.collection.iterator(); it.hasNext(); ) {
-                if (counter != diff) {
-                    counter++;
-                    it.remove();
-                } else {
-                    break;
-                }
-            }
-        } else {
-            for (int i = 0; i < -diff; i++) {
-                this.collection.add(new Node(this));
-            }
+        while (this.collection.size() < this.config.getBrainSize()) {
+            this.collection.add(new Node(this));
         }
     }
 
@@ -78,12 +67,16 @@ public class Nate {
         return this.config;
     }
 
-    public void close() {
-        JsonArray array = new JsonArray();
+    public void saveState() {
+        JsonArray array = new JsonArray(this.config.getBrainSize());
         for (Node node : this.collection) {
             array.add(node.serialize());
         }
-        this.stateManager.setCollection(array);
+        this.stateManager.setArray(array);
+    }
+
+    public void close() {
+        this.saveState();
         this.collection.clear();
     }
 }
